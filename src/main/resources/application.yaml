@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: expense-tracker
+
+server:
+  port: 3000
+  error:
+    include-message: always
+    include-binding-errors: always
+
+aws:
+  region: eu-west-1
+  dynamodb:
+    table-name: expense-tracker
+
+logging:
+  level:
+    com.jamel.expense_tracker: DEBUG
+    software.amazon.awssdk: WARN
