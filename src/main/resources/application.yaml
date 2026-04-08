@@ -11,7 +11,7 @@ server:
 aws:
   region: eu-west-1
   dynamodb:
-    table-name: expense-tracker
+    table-name: expenses
 
 logging:
   level:

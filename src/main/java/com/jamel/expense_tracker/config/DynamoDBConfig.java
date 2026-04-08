@@ -36,12 +36,12 @@ public class DynamoDBConfig {
         }
         
         System.out.println("✓ AWS credentials loaded successfully");
-        System.out.println("  Region: " + (region != null ? region : "us-east-1"));
+        System.out.println("  Region: " + (region != null ? region : "eu-west-1"));
         
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKeyId, secretAccessKey);
         
         return DynamoDbClient.builder()
-                .region(Region.of(region != null ? region : "us-east-1"))
+                .region(Region.of(region != null ? region : "eu-west-1"))
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build();
     }

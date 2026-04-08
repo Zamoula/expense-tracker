@@ -1,0 +1,251 @@
+{
+  "info": {
+    "name": "Expense Tracker API",
+    "description": "Postman collection for the Expense Tracker API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Expense",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Groceries\",\n  \"amount\": 150.50,\n  \"category\": \"FOOD\",\n  \"description\": \"Weekly grocery shopping\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v0/expenses/{{userId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v0",
+            "expenses",
+            "{{userId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get All Expenses",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v0/expenses/{{userId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v0",
+            "expenses",
+            "{{userId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Single Expense",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v0/expenses/{{userId}}/{{expenseId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v0",
+            "expenses",
+            "{{userId}}",
+            "{{expenseId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Expense",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Groceries Updated\",\n  \"amount\": 160.00,\n  \"category\": \"FOOD\",\n  \"description\": \"Updated grocery shopping\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v0/expenses/{{userId}}/{{expenseId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v0",
+            "expenses",
+            "{{userId}}",
+            "{{expenseId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Expense",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v0/expenses/{{userId}}/{{expenseId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v0",
+            "expenses",
+            "{{userId}}",
+            "{{expenseId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Total Expenses Summary",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v0/expenses/{{userId}}/summary/total",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v0",
+            "expenses",
+            "{{userId}}",
+            "summary",
+            "total"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Expenses by Category",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v0/expenses/{{userId}}/category/{{category}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v0",
+            "expenses",
+            "{{userId}}",
+            "category",
+            "{{category}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Category Total Summary",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v0/expenses/{{userId}}/summary/category/{{category}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v0",
+            "expenses",
+            "{{userId}}",
+            "summary",
+            "category",
+            "{{category}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Paginated Expenses",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v0/expenses/{{userId}}/paginated?limit=10&lastEvaluatedKey=",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v0",
+            "expenses",
+            "{{userId}}",
+            "paginated"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "lastEvaluatedKey",
+              "value": ""
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "user123",
+      "type": "string"
+    },
+    {
+      "key": "expenseId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "category",
+      "value": "FOOD",
+      "type": "string"
+    }
+  ]
+}

@@ -1,11 +1,12 @@
 package com.jamel.expense_tracker.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.jamel.expense_tracker.dto.PaginatedResponse;
+import com.jamel.expense_tracker.dto.PaginationRequest;
 import com.jamel.expense_tracker.model.Expense;
 import com.jamel.expense_tracker.service.ExpenseService;
 
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/expenses")
+@RequestMapping("/api/v0/expenses")
 public class ExpenseController {
     
     private final ExpenseService expenseService;
@@ -116,35 +117,20 @@ public class ExpenseController {
         response.put("total", total);
         return ResponseEntity.ok(response);
     }
-}
 
-// Request DTO with Jakarta Validation
-class ExpenseRequest {
-    
-    @NotBlank(message = "Title is required")
-    @Size(min = 1, max = 100, message = "Title must be between 1 and 100 characters")
-    private String title;
-    
-    @NotNull(message = "Amount is required")
-    @Positive(message = "Amount must be positive")
-    private Double amount;
-    
-    @NotBlank(message = "Category is required")
-    private String category;
-    
-    @Size(max = 500, message = "Description cannot exceed 500 characters")
-    private String description;
-    
-    // Getters and setters
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-    
-    public Double getAmount() { return amount; }
-    public void setAmount(Double amount) { this.amount = amount; }
-    
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
-    
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    @GetMapping("/{userId}/paginated")
+    public ResponseEntity<PaginatedResponse<Expense>> getUserExpensesPaginated(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(required = false) String lastEvaluatedKey) {
+        
+        PaginationRequest request = new PaginationRequest();
+        request.setLimit(limit);
+        request.setLastEvaluatedKey(lastEvaluatedKey);
+        
+        PaginatedResponse<Expense> response = 
+            expenseService.getUserExpensesPaginated(userId, request);
+        
+        return ResponseEntity.ok(response);
+    }
 }

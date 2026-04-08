@@ -2,6 +2,8 @@ package com.jamel.expense_tracker.service;
 
 import org.springframework.stereotype.Service;
 
+import com.jamel.expense_tracker.dto.PaginatedResponse;
+import com.jamel.expense_tracker.dto.PaginationRequest;
 import com.jamel.expense_tracker.model.Expense;
 import com.jamel.expense_tracker.repository.ExpenseRepository;
 
@@ -85,5 +87,32 @@ public class ExpenseService {
         return getExpensesByCategory(userId, category).stream()
                 .mapToDouble(Expense::getAmount)
                 .sum();
+    }
+
+    public PaginatedResponse<Expense> getUserExpensesPaginated(String userId, 
+                                                                PaginationRequest paginationRequest) {
+        // Validate limit (max 100 items per page)
+        int limit = Math.min(paginationRequest.getLimit(), 100);
+        
+        // Query repository with pagination
+        ExpenseRepository.PaginatedResult<Expense> result = 
+            expenseRepository.findPaginatedByUserId(userId, 
+                paginationRequest.getLastEvaluatedKey(), 
+                limit);
+        
+        // Build response
+        PaginatedResponse<Expense> response = new PaginatedResponse<>();
+        response.setItems(result.getItems());
+        
+        PaginatedResponse.PageInfo pageInfo = new PaginatedResponse.PageInfo();
+        pageInfo.setSize(result.getSize());
+        pageInfo.setLastEvaluatedKey(result.getLastEvaluatedKey());
+        pageInfo.setHasNext(result.isHasNext());
+        
+        // Optional: Get total count (requires additional query)
+        // pageInfo.setTotalItems(expenseRepository.countByUserId(userId));
+        
+        response.setPageInfo(pageInfo);
+        return response;
     }
 }
