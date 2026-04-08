@@ -16,6 +16,7 @@ A production-ready RESTful API for tracking personal expenses, built with **Java
 | Boilerplate Reduction | Lombok |
 | Environment Config | dotenv-java |
 | Build Tool | Maven |
+| Caching | Spring Boot Cache (In-Memory) |
 
 ---
 
@@ -114,7 +115,7 @@ aws dynamodb create-table \
 ./mvnw spring-boot:run
 ```
 
-The API will be available at `http://localhost:8080`.
+The API will be available at `http://localhost:3000`.
 
 ---
 
@@ -123,6 +124,7 @@ The API will be available at `http://localhost:8080`.
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/expenses/{userId}` | Retrieve all expenses for a user |
+| `GET` | `/api/expenses/{userId}/paginated` | Retrieve paginated expenses using `LastEvaluatedKey` |
 | `GET` | `/api/expenses/{userId}/{expenseId}` | Retrieve a specific expense |
 | `POST` | `/api/expenses` | Create a new expense |
 | `PUT` | `/api/expenses/{userId}/{expenseId}` | Update an existing expense |
@@ -165,6 +167,30 @@ public class Expense {
 
 ---
 
+## ⚡ Performance Optimizations
+
+### In-Memory Caching
+To reduce latency and decrease DynamoDB read costs, this API utilizes **Spring Boot Caching**:
+- `@Cacheable` endpoints automatically cache response data (e.g., fetching a user's expense list or specific expenses).
+- `@CacheEvict` appropriately clears relevant caches when changes occur via POST, PUT, or DELETE request endpoints.
+
+### Pagination
+DynamoDB can quickly return large datasets using native cursor-based pagination. The API supports paginated reads using `limit` and `lastEvaluatedKey` query parameters.
+
+---
+
+## 📷 Screenshots
+
+### DynamoDB Monitor
+![DynamoDB Monitor](assets/dynamodb-monitor.png)
+*A view of the Amazon DynamoDB CloudWatch monitoring dashboard showing read capacity usage and throttling metrics for the `Expenses` table.*
+
+### DynamoDB Explore Items
+![DynamoDB Explore Items](assets/dynamodb-items.png)
+*The DynamoDB items explorer displaying the schema and actual expense records stored in the table, including Partition Key (`userId`) and Sort Key (`expenseId`).*
+
+---
+
 ## 🔒 Security & Best Practices
 
 - AWS credentials are **never hardcoded** — managed via `.env` and excluded from version control.
@@ -177,7 +203,7 @@ public class Expense {
 
 - [ ] Add authentication with AWS Cognito or Spring Security + JWT
 - [ ] Implement a GSI (Global Secondary Index) for querying expenses by category or date
-- [ ] Add pagination support using DynamoDB's `LastEvaluatedKey`
+- [x] Add pagination support using DynamoDB's `LastEvaluatedKey`
 - [ ] Deploy to AWS Lambda + API Gateway for a fully serverless architecture
 - [ ] Add Docker + LocalStack support for local DynamoDB development
 

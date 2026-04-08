@@ -1,6 +1,9 @@
 package com.jamel.expense_tracker.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 
 import com.jamel.expense_tracker.dto.PaginatedResponse;
 import com.jamel.expense_tracker.dto.PaginationRequest;
@@ -21,6 +24,7 @@ public class ExpenseService {
         this.expenseRepository = expenseRepository;
     }
     
+    @CacheEvict(value = {"userExpenses", "totalExpenses", "expensesByCategory", "categoryTotal", "paginatedExpenses"}, allEntries = true)
     public Expense createExpense(String userId, String title, Double amount, 
                                   String category, String description) {
         Expense expense = Expense.builder()
@@ -36,10 +40,12 @@ public class ExpenseService {
         return expenseRepository.save(expense);
     }
     
+    @Cacheable(value = "userExpenses", key = "#userId")
     public List<Expense> getUserExpenses(String userId) {
         return expenseRepository.findByUserId(userId);
     }
     
+    @Cacheable(value = "expense", key = "#userId + '-' + #expenseId")
     public Expense getExpense(String userId, String expenseId) {
         Expense expense = expenseRepository.findById(userId, expenseId);
         if (expense == null) {
@@ -48,6 +54,10 @@ public class ExpenseService {
         return expense;
     }
     
+    @Caching(evict = {
+        @CacheEvict(value = "expense", key = "#userId + '-' + #expenseId"),
+        @CacheEvict(value = {"userExpenses", "totalExpenses", "expensesByCategory", "categoryTotal", "paginatedExpenses"}, allEntries = true)
+    })
     public Expense updateExpense(String userId, String expenseId, 
                                   String title, Double amount, 
                                   String category, String description) {
@@ -64,6 +74,10 @@ public class ExpenseService {
         return expenseRepository.update(existing);
     }
     
+    @Caching(evict = {
+        @CacheEvict(value = "expense", key = "#userId + '-' + #expenseId"),
+        @CacheEvict(value = {"userExpenses", "totalExpenses", "expensesByCategory", "categoryTotal", "paginatedExpenses"}, allEntries = true)
+    })
     public void deleteExpense(String userId, String expenseId) {
         if (!expenseRepository.exists(userId, expenseId)) {
             throw new RuntimeException("Expense not found with ID: " + expenseId);
@@ -71,24 +85,28 @@ public class ExpenseService {
         expenseRepository.delete(userId, expenseId);
     }
     
+    @Cacheable(value = "totalExpenses", key = "#userId")
     public double getTotalExpenses(String userId) {
         return getUserExpenses(userId).stream()
                 .mapToDouble(Expense::getAmount)
                 .sum();
     }
     
+    @Cacheable(value = "expensesByCategory", key = "#userId + '-' + #category")
     public List<Expense> getExpensesByCategory(String userId, String category) {
         return getUserExpenses(userId).stream()
                 .filter(expense -> expense.getCategory().equalsIgnoreCase(category))
                 .collect(Collectors.toList());
     }
     
+    @Cacheable(value = "categoryTotal", key = "#userId + '-' + #category")
     public double getCategoryTotal(String userId, String category) {
         return getExpensesByCategory(userId, category).stream()
                 .mapToDouble(Expense::getAmount)
                 .sum();
     }
 
+    @Cacheable(value = "paginatedExpenses", key = "#userId + '-' + (#paginationRequest.lastEvaluatedKey != null ? #paginationRequest.lastEvaluatedKey : 'firstPage') + '-' + #paginationRequest.limit")
     public PaginatedResponse<Expense> getUserExpensesPaginated(String userId, 
                                                                 PaginationRequest paginationRequest) {
         // Validate limit (max 100 items per page)
