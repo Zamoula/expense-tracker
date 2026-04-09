@@ -133,12 +133,16 @@ The API will be available at `http://localhost:3000`.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/api/expenses/{userId}` | Retrieve all expenses for a user |
-| `GET` | `/api/expenses/{userId}/paginated` | Retrieve paginated expenses using `LastEvaluatedKey` |
-| `GET` | `/api/expenses/{userId}/{expenseId}` | Retrieve a specific expense |
-| `POST` | `/api/expenses` | Create a new expense |
-| `PUT` | `/api/expenses/{userId}/{expenseId}` | Update an existing expense |
-| `DELETE` | `/api/expenses/{userId}/{expenseId}` | Delete an expense |
+| `GET` | `/api/v0/expenses/{userId}` | Retrieve all expenses for a user |
+| `GET` | `/api/v0/expenses/{userId}/paginated` | Retrieve paginated expenses using `LastEvaluatedKey` |
+| `GET` | `/api/v0/expenses/{userId}/{expenseId}` | Retrieve a specific expense |
+| `GET` | `/api/v0/expenses/{userId}/category/{category}` | Retrieve expenses by category |
+| `GET` | `/api/v0/expenses/{userId}/date` | Retrieve expenses by date range |
+| `GET` | `/api/v0/expenses/{userId}/summary/total` | Get total expenses summary |
+| `GET` | `/api/v0/expenses/{userId}/summary/category/{category}` | Get category total |
+| `POST` | `/api/v0/expenses/{userId}` | Create a new expense |
+| `PUT` | `/api/v0/expenses/{userId}/{expenseId}` | Update an existing expense |
+| `DELETE` | `/api/v0/expenses/{userId}/{expenseId}` | Delete an expense |
 
 ---
 
@@ -161,17 +165,34 @@ Entity mapping uses DynamoDB annotations:
 ```java
 @DynamoDbBean
 public class Expense {
-
-    @DynamoDbPartitionKey
     private String userId;
+    private String expenseId;
+    private String title;
+    private Double amount;
+    private String category;
+    private String description;
+    private LocalDateTime date;
+
+    @DynamoDbSecondaryPartitionKey(indexNames = {"category-index", "date-index"})
+    @DynamoDbPartitionKey
+    public String getUserId() {
+        return userId;
+    }
 
     @DynamoDbSortKey
-    private String expenseId;
+    public String getExpenseId() {
+        return expenseId;
+    }
 
-    private String category;
-    private Double amount;
-    private String description;
-    private String date;
+    @DynamoDbSecondarySortKey(indexNames = "category-index")
+    public String getCategory() {
+        return category;
+    }
+
+    @DynamoDbSecondarySortKey(indexNames = "date-index")
+    public LocalDateTime getDate() {
+        return date;
+    }
 }
 ```
 
@@ -214,7 +235,7 @@ To protect against API abuse, a custom `RateLimitFilter` interacts with the Redi
 
 ## 📌 Future Improvements
 
-- [ ] Implement a GSI (Global Secondary Index) for querying expenses by category or date
+- [x] Implement a GSI (Global Secondary Index) for querying expenses by category or date
 - [x] Add pagination support using DynamoDB's `LastEvaluatedKey`
 - [ ] Deploy to AWS Lambda + API Gateway for a fully serverless architecture
 - [ ] Add Docker + LocalStack support for local DynamoDB development

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import com.jamel.expense_tracker.dto.PaginatedResponse;
 import com.jamel.expense_tracker.dto.PaginationRequest;
@@ -13,6 +14,7 @@ import com.jamel.expense_tracker.service.ExpenseService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/v0/expenses")
@@ -102,6 +104,16 @@ public class ExpenseController {
             @PathVariable String category) {
         
         return ResponseEntity.ok(expenseService.getExpensesByCategory(userId, category));
+    }
+    
+    // Get expenses by date range
+    @GetMapping("/{userId}/date")
+    public ResponseEntity<List<Expense>> getExpensesByDateRange(
+            @PathVariable String userId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        
+        return ResponseEntity.ok(expenseService.getExpensesByDateRange(userId, startDate, endDate));
     }
     
     // Get category total

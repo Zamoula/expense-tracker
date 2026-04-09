@@ -13,7 +13,7 @@ import com.jamel.expense_tracker.repository.ExpenseRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
 
 @Service
 public class ExpenseService {
@@ -94,9 +94,12 @@ public class ExpenseService {
     
     @Cacheable(value = "expensesByCategory", key = "#userId + '-' + #category")
     public List<Expense> getExpensesByCategory(String userId, String category) {
-        return getUserExpenses(userId).stream()
-                .filter(expense -> expense.getCategory().equalsIgnoreCase(category))
-                .collect(Collectors.toList());
+        return expenseRepository.findByUserIdAndCategory(userId, category.toUpperCase());
+    }
+    
+    @Cacheable(value = "expensesByDate", key = "#userId + '-' + #startDate + '-' + #endDate")
+    public List<Expense> getExpensesByDateRange(String userId, LocalDateTime startDate, LocalDateTime endDate) {
+        return expenseRepository.findByUserIdAndDateBetween(userId, startDate, endDate);
     }
     
     @Cacheable(value = "categoryTotal", key = "#userId + '-' + #category")

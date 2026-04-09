@@ -19,6 +19,7 @@ public class Expense {
     private String description;
     private LocalDateTime date;
 
+    @DynamoDbSecondaryPartitionKey(indexNames = {"category-index", "date-index"})
     @DynamoDbPartitionKey
     public String getUserId() {
         return userId;
@@ -27,5 +28,15 @@ public class Expense {
     @DynamoDbSortKey
     public String getExpenseId() {
         return expenseId;
+    }
+
+    @DynamoDbSecondarySortKey(indexNames = "category-index")
+    public String getCategory() {
+        return category;
+    }
+
+    @DynamoDbSecondarySortKey(indexNames = "date-index")
+    public LocalDateTime getDate() {
+        return date;
     }
 }

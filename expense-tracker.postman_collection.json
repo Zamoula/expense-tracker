@@ -224,6 +224,36 @@
           ]
         }
       }
+    },
+    {
+      "name": "Get Expenses by Date Range",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v0/expenses/{{userId}}/date?startDate={{startDate}}&endDate={{endDate}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v0",
+            "expenses",
+            "{{userId}}",
+            "date"
+          ],
+          "query": [
+            {
+              "key": "startDate",
+              "value": "{{startDate}}"
+            },
+            {
+              "key": "endDate",
+              "value": "{{endDate}}"
+            }
+          ]
+        }
+      }
     }
   ],
   "variable": [
@@ -245,6 +275,16 @@
     {
       "key": "category",
       "value": "FOOD",
+      "type": "string"
+    },
+    {
+      "key": "startDate",
+      "value": "2024-01-01T00:00:00",
+      "type": "string"
+    },
+    {
+      "key": "endDate",
+      "value": "2024-12-31T23:59:59",
       "type": "string"
     }
   ]

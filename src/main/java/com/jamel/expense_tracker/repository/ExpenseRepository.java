@@ -2,6 +2,7 @@ package com.jamel.expense_tracker.repository;
 
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
@@ -13,6 +14,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import tools.jackson.databind.ObjectMapper;
 
 import com.jamel.expense_tracker.model.Expense;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,6 +56,31 @@ public class ExpenseRepository {
         return expenseTable.query(queryConditional)
                 .items()
                 .stream()
+                .collect(Collectors.toList());
+    }
+
+    public List<Expense> findByUserIdAndCategory(String userId, String category) {
+        DynamoDbIndex<Expense> categoryIndex = expenseTable.index("category-index");
+        QueryConditional queryConditional = QueryConditional
+                .keyEqualTo(Key.builder().partitionValue(userId).sortValue(category).build());
+        
+        return categoryIndex.query(queryConditional)
+                .stream()
+                .flatMap(page -> page.items().stream())
+                .collect(Collectors.toList());
+    }
+
+    public List<Expense> findByUserIdAndDateBetween(String userId, LocalDateTime startDate, LocalDateTime endDate) {
+        DynamoDbIndex<Expense> dateIndex = expenseTable.index("date-index");
+        
+        Key startKey = Key.builder().partitionValue(userId).sortValue(startDate.toString()).build();
+        Key endKey = Key.builder().partitionValue(userId).sortValue(endDate.toString()).build();
+        
+        QueryConditional queryConditional = QueryConditional.sortBetween(startKey, endKey);
+        
+        return dateIndex.query(queryConditional)
+                .stream()
+                .flatMap(page -> page.items().stream())
                 .collect(Collectors.toList());
     }
 
