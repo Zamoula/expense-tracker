@@ -2,6 +2,10 @@ spring:
   application:
     name: expense-tracker
 
+  redis:
+    host: localhost
+    port: 6379
+
 server:
   port: 3000
   error:
@@ -17,3 +21,7 @@ logging:
   level:
     com.jamel.expense_tracker: DEBUG
     software.amazon.awssdk: WARN
+
+rate-limit:
+  requests: 2
+  seconds: 60
