@@ -11,7 +11,7 @@ public class RateLimiterService {
     
     private final StringRedisTemplate redisTemplate;
     
-    @Value("${rate-limit.requests:10}")
+    @Value("${rate-limit.requests:2}")
     private int maxRequests;
     
     @Value("${rate-limit.seconds:60}")
