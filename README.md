@@ -17,6 +17,7 @@ A production-ready RESTful API for tracking personal expenses, built with **Java
 | Environment Config | dotenv-java |
 | Build Tool | Maven |
 | Caching | Spring Boot Cache (In-Memory) |
+| Rate Limiting | Redis & Spring Web Filters |
 
 ---
 
@@ -72,6 +73,7 @@ expense-tracker/
 - Java 17+
 - Maven 3.8+
 - An AWS account with DynamoDB access (or LocalStack for local development)
+- Docker (for running local Redis)
 
 ### 1. Clone the repository
 
@@ -109,7 +111,15 @@ aws dynamodb create-table \
   --billing-mode PAY_PER_REQUEST
 ```
 
-### 4. Build and run
+### 4. Start Redis
+
+A `docker-compose.yml` file is provided to easily spin up a local Redis instance needed for rate limiting.
+
+```bash
+docker-compose up -d
+```
+
+### 5. Build and run
 
 ```bash
 ./mvnw spring-boot:run
@@ -177,6 +187,9 @@ To reduce latency and decrease DynamoDB read costs, this API utilizes **Spring B
 ### Pagination
 DynamoDB can quickly return large datasets using native cursor-based pagination. The API supports paginated reads using `limit` and `lastEvaluatedKey` query parameters.
 
+### Rate Limiting (Redis)
+To protect against API abuse, a custom `RateLimitFilter` interacts with the Redis backend via `StringRedisTemplate` to enforce a maximum number of requests per IP address within a configurable time window. Configurations can be found in `application.yaml`.
+
 ---
 
 ## 📷 Screenshots
@@ -201,11 +214,11 @@ DynamoDB can quickly return large datasets using native cursor-based pagination.
 
 ## 📌 Future Improvements
 
-- [ ] Add authentication with AWS Cognito or Spring Security + JWT
 - [ ] Implement a GSI (Global Secondary Index) for querying expenses by category or date
 - [x] Add pagination support using DynamoDB's `LastEvaluatedKey`
 - [ ] Deploy to AWS Lambda + API Gateway for a fully serverless architecture
 - [ ] Add Docker + LocalStack support for local DynamoDB development
+- [x] Implement API rate limiting (with Redis)
 
 ---
 
